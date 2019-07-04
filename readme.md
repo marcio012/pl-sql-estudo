@@ -44,10 +44,13 @@ $ docker pull store/oracle/database-enterprise:12.2.0.1
 ```bash
 $ docker run -d -it --name <oracle-db> store/oracle/database-enterprise:12.2.0.1
 ```
+
 4. Conectando ao container
+
 ```bash
 $ docker exec -it <oracle-db> bash -c "source /home/oracle/.bashrc; sqlplus /nolog"
 ```
+
 > No comando acima as vezes e necessário digitar o **CONTAINER ID** em vez do **NAMES** do container
 
 **Com o container ativo** iniciaremos as configurações do banco de dados
@@ -60,7 +63,7 @@ connect sys as sysdba;
 ```
 
 6. Digite o password padrão do container
-*'Oradoc_db1'*
+*Oradoc_db1*
 
 7. Altere a sessão
 
@@ -101,7 +104,7 @@ GRANT ALL PRIVILEGES TO <identificação>;
 
 <!-- TODO: O que é o pl-sql:  -->
 
-## Instuções
+## Instuções iniciais basicas
 
 ### SQL - instrução select
 ---
@@ -117,7 +120,6 @@ SELECT [DISTINCT] <campos> FROM <tabela>
 *From* : Identifica a tabela ou as tabelas que contem aquelas colunas
 *DISTINCT* : Opcão para distinguir os valores, retirando duplicidades.
 
-> [!WARNING]
 > O uso do "*" como coringa para retornar todos os campos da tabela.
 
 * **Obs:**
@@ -131,7 +133,7 @@ SELECT * FROM <tabela>
 * **Objetivo Principal**: 
   Realizar cálculos com dados numéricos e datas* obitidas nas consultas SQL utilizando os operadores: **(+) Adição, (-) Subtração, (*) Multiplicação, (/) Divisão**
 
-* **OBS:** Para os cálculos com datas, apenas os operadores de ADIÇÃO e SUBTRAÇÃO são permitidos.
+> Para os cálculos com datas, apenas os operadores de ADIÇÃO e SUBTRAÇÃO são permitidos.
 
 * **Regras de precedencias:**
   
@@ -155,7 +157,7 @@ ORDER BY l.preco;
 * **Objetivo Principal**: 
   Dar um valor ausente ou inesistente a um dado, ou tabela.
 
-* **OBS:** Qualquer coluna e tipo de dado pode assumir o valor NULL, desde que não haja restrição:
+> Qualquer coluna e tipo de dado pode assumir o valor NULL, desde que não haja restrição:
 
 * **O que é um valor null:**
   
@@ -184,7 +186,7 @@ ORDER BY l.preco;
 * **Objetivo Principal**: 
   Dixar amigavel e legível os nomes das tabelas
 
-* **OBS:** Qualquer coluna ou tipo de dado pode ter um alias:
+> Qualquer coluna ou tipo de dado pode ter um alias:
 
 * **O que é um alias:**
   
@@ -240,44 +242,148 @@ select l.id_livro, l.titulo, l.edicao, l.id_editora, l.isbn, l.preco, l.qtde_est
 select l.id_livro, l.titulo, l.edicao, l.id_editora, l.isbn, l.preco, l.qtde_estoque, l.preco * l.qtde_estoque as valorTotal from tb_livro l;
 ```
 
-
-
-
 ### SQL - instrução select uso do Distinct 
 ---
 * **Objetivo Principal**: 
-  Dixar amigavel e legível os nomes das tabelas
+  Unificar registros duplicados na consulta do SELECT
 
-* **OBS:** Qualquer coluna ou tipo de dado pode ter um alias:
-
-* **O que é um alias:**
+* **Quando e como usar:**
   
-  1. É um nome amigavel de uma determinado campo ou coluna
-
-  2. Serve para facilita a leitura
-
-  3. Pode ser aplicado em procedimento ou calculos
-
-  4. Seu uso e opcional
+  1. Seu uso e opcional
+  
+  2. Ele deve ser declarado logo após o comando select e antes da declaração dos atributos
 
 * Declaração:
-  
-  - espaço em branco seguido do nome-da-variável ou alias
 
   ``` sql
-  select <nome-da-coluna> nome-do-alias from <nome-da-tabela>;
+  select distinct <nome-da-coluna> from <nome-da-tabela>;
   ```
 
-  - espaço em branco seguido da palavra resevada **as** podendo
+### SQL - instrução select Index 
+---
+* **Objetivo Principal**: 
+  Gerar um indice e assim facilitar na busca dos registros
 
-  ``` sql
-  select <nome-da-coluna> as nome-do-alias from <nome-da-tabela>;
-  ```
-
-* Comando:
-  
-  <!-- TODO: Comando Sql com a função null -->
-``` sql
-select l.id_livro, l.titulo, l.edicao, l.id_editora, l.isbn, l.preco, l.qtde_estoque, l.preco * l.qtde_estoque as valorTotal from tb_livro l;
+* Comando
+```sql
+CREATE [UNIQUE] INDEX <index_name>
+on                    <table_name> (
+<column_name_1>,
+<column_name_2>,
+<column_name_N> );
 ```
+
+### SQL - Describle
+---
+* **Objetivo Principal**: 
+  Objetivo descrever as estruturas de uma tabelas. Como seus campos, tipos de dados, nulidade
+
+* **Quando e como usar:**
+  
+  1. No uso de uma ide como SqlDevelop seu uso perde o sentido, mas em linha de comando como SqlPlus, so é possivel ver a descrição das tabelas através desse comando.
+
+* Declaração:
+
+    * Forma abreviada:
+  
+  ``` sql
+  desc <nome-da-tabela>;
+  ```
+
+    * Forma completa:
+
+  ``` sql
+  describe <nome-da-tabela>;
+  ```
+
+---
+<!-- TODO: Final da seção Instuções iniciais basicas -->
+
+
+<!-- FIXME: Topico de Restrições -->
+
+## Restrições
+
+### SQL - Restrições em Tabelas ou Colunas/Campos
+---
+
+* **Definição:**
+Restrições são regras para uma tabela e suas colunas que restringem como e quais dados podem ser inseridos, atualizados ou excluídos. Restrições estão disponíveis para colunas e tabelas.
+
+* **Restrição de Coluna:**
+As colunas podem ter regras que definem qual lista de valores ou que tipo de valores podem ser inseridos nelas. Embora existam vários tipos de restrições de coluna, o que você, sem dúvida, usará com mais freqüência é NOT NULL. A restrição NOT NULL simplesmente significa que uma coluna deve ter um valor. Não pode ser desconhecido, ou em branco, ou no jargão SQL, NULL
+
+* Comando
+
+``` sql
+CREATE TABLE authors (  
+    id number(38) not null,
+    name varchar2(100) not null,
+    birth_date date,
+    gender varchar2(30)
+);
+```
+
+
+
+> O uso do "*" como coringa para retornar todos os campos da tabela.
+
+* **Obs:**
+
+``` sql
+SELECT * FROM <tabela>
+```
+
+
+
+<!-- TODO: Final da seção Restrição -->
+
+<!-- FIXME: Topico de Filtros de Consultas -->
+
+## Filtros de Consultas
+--- 
+Filtros ou limitação do espaço dos dados, baseados em critérios.
+
+### SQL - Select com Where
+---
+
+* Comando
+
+``` sql
+Select distinct <campos> from <tabela> where <criterios>;
+```
+
+* **Definição:**
+  **where**: Palavra reservada para restrição
+
+  **criterios**: Nome de colunas, expressões, constantes que em conjunto a um operador lógico formam a restrição. Podemos ter uma ou a combinação de expressões e operadores lógicos.
+
+### SQL - Select com filtros de nomes e datas
+---
+
+* Comando
+
+Buscando um aluno que tenha o nome 'João'
+
+``` sql
+Select distinct <campos> from <tabela> where aluno = 'João';
+```
+
+Usando um filtro de data
+
+``` sql
+Select distinct <campos> from <tabela> where data_compra = '21-05-19';
+```
+
+> na busca usando a string para data ela pode ser escrita *00-00-00* ou *00/00/00*
+
+> os caracteres em **maiúsculo** e **minúsculo** são considerados como diferentes nas restrições
+
+* **Definição:**
+  **where**: Faz uma comparação da linha aluno com o nome 'João' e verifica se ha naquela linha existe.
+  
+> a busca aqui é case-sensitive então ha uma diferença entre 'João' || 'joão' || 'JOÃO'.
+
+
+
 
